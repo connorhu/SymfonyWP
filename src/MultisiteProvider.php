@@ -2,9 +2,6 @@
 
 namespace SymfonyWP;
 
-// kell egy olyan cucc amivel ki lehet választani, hogy melyik multisite aktív
-// kell egy olyan cucc ami a táblaneveket tudja átalakítani a megfelelő formátumba a kiválasztott multisite függvényében
-
 class MultisiteProvider
 {
     private int $multisiteNumber = 0;
