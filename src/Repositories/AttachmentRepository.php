@@ -3,6 +3,7 @@
 namespace SymfonyWP\Repositories;
 
 use SymfonyWP\Entity\Attachment;
+use SymfonyWP\Entity\Post;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -54,6 +55,15 @@ class AttachmentRepository extends ServiceEntityRepository
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null): array
     {
         return parent::findBy($this->withAttachmentCriteria($criteria), $orderBy, $limit, $offset);
+    }
+
+
+    /**
+     * @return array<int, Attachment>
+     */
+    public function findAllByPost(Post $post): array
+    {
+        return $this->findBy(['parent' => $post]);
     }
 
     /**
