@@ -2,14 +2,12 @@
 
 namespace SymfonyWP\Bundle\DependencyInjection;
 
-use SymfonyWP\MultisiteNamingStrategy;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
-use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\Config\FileLocator;
 
-class SymfonyWPExtension extends Extension implements PrependExtensionInterface
+class SymfonyWPExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container): void
     {
@@ -21,30 +19,5 @@ class SymfonyWPExtension extends Extension implements PrependExtensionInterface
 
         $loader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.php');
-    }
-
-    public function prepend(ContainerBuilder $container): void
-    {
-        if (!$container->hasExtension('doctrine')) {
-            return;
-        }
-
-        $container->prependExtensionConfig('doctrine', [
-            'orm' => [
-                'entity_managers' => [
-                    'default' => [
-                        'naming_strategy' => MultisiteNamingStrategy::class,
-                        'mappings' => [
-                            'SymfonyWP' => [
-                                'is_bundle' => false,
-                                'type' => 'attribute',
-                                'dir' => __DIR__ . '/../../Entity',
-                                'prefix' => 'SymfonyWP\\Entity',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ]);
     }
 }
