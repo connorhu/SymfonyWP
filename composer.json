@@ -1,0 +1,36 @@
+{
+  "name": "connorhu/symfony-wp",
+  "type": "library",
+  "description": "Access Wordpress Database from Symfony (Doctrine)",
+  "keywords": ["orm", "symfony", "wordpress"],
+  "license": "MIT",
+  "homepage": "https://github.com/connorhu/SymfonyWP",
+  "authors": [
+    {"name": "Karoly Gossler", "email": "connor@connor.hu"}
+  ],
+  "autoload": {
+    "psr-4": {
+      "SymfonyWP\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "SymfonyWP\\Tests\\": "tests/Tests/"
+    }
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "require": {
+    "php": ">=8.3"
+  },
+  "require-dev": {
+    "doctrine/doctrine-bundle": "^2.11",
+    "doctrine/orm": "^2.18 || ^3.0",
+    "phpunit/phpunit": "^11.0",
+    "symfony/dependency-injection": "^6.4 || ^7.0"
+  },
+  "scripts": {
+    "test": "phpunit tests"
+  }
+}
