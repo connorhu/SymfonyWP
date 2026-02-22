@@ -9,6 +9,12 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
+#[ORM\InheritanceType('SINGLE_TABLE')]
+#[ORM\DiscriminatorColumn(name: 'post_type', type: 'string')]
+#[ORM\DiscriminatorMap([
+    'post' => Post::class,
+    'attachment' => Attachment::class,
+])]
 #[Wordpress\TableName(name: 'posts')]
 class Post
 {
