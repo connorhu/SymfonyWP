@@ -2,28 +2,27 @@
 
 namespace SymfonyWP\Repositories;
 
-use SymfonyWP\Entity\Attachment;
 use SymfonyWP\Entity\Post;
 use SymfonyWP\Entity\PostMeta;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Attachment|null find($id, $lockMode = null, $lockVersion = null)
- * @method Attachment[]    findAll()
+ * @method Post|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Post[]    findAll()
  */
 class AttachmentRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Attachment::class);
+        parent::__construct($registry, Post::class);
     }
 
-    public function find($id, $lockMode = null, $lockVersion = null): ?Attachment
+    public function find($id, $lockMode = null, $lockVersion = null): ?Post
     {
         $attachment = parent::find($id, $lockMode, $lockVersion);
 
-        if ($attachment === null || $attachment->getType() !== 'attachment') {
+        if ($attachment === null || !$attachment->isAttachment()) {
             return null;
         }
 
@@ -32,7 +31,7 @@ class AttachmentRepository extends ServiceEntityRepository
 
     /**
      * @param array<string, mixed>|null $orderBy
-     * @return array<int, Attachment>
+     * @return array<int, Post>
      */
     public function findAll(?array $orderBy = null): array
     {
@@ -43,7 +42,7 @@ class AttachmentRepository extends ServiceEntityRepository
      * @param array<string, mixed> $criteria
      * @param array<string, mixed>|null $orderBy
      */
-    public function findOneBy(array $criteria, array $orderBy = null): ?Attachment
+    public function findOneBy(array $criteria, array $orderBy = null): ?Post
     {
         return parent::findOneBy($this->withAttachmentCriteria($criteria), $orderBy);
     }
@@ -51,7 +50,7 @@ class AttachmentRepository extends ServiceEntityRepository
     /**
      * @param array<string, mixed> $criteria
      * @param array<string, mixed>|null $orderBy
-     * @return array<int, Attachment>
+     * @return array<int, Post>
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null): array
     {
@@ -60,7 +59,7 @@ class AttachmentRepository extends ServiceEntityRepository
 
 
     /**
-     * @return array<int, Attachment>
+     * @return array<int, Post>
      */
     public function findAllByPost(Post $post): array
     {
@@ -68,7 +67,7 @@ class AttachmentRepository extends ServiceEntityRepository
     }
 
 
-    public function findFeaturedImageForPost(Post $post): ?Attachment
+    public function findFeaturedImageForPost(Post $post): ?Post
     {
         $featuredImageId = $post->getFeaturedImageId();
 
@@ -84,7 +83,7 @@ class AttachmentRepository extends ServiceEntityRepository
      * N+1 lookups in listing views.
      *
      * @param array<int, Post> $posts
-     * @return array<int, Attachment>
+     * @return array<int, Post>
      */
     public function findFeaturedImagesForPosts(array $posts): array
     {
@@ -101,13 +100,13 @@ class AttachmentRepository extends ServiceEntityRepository
         $rows = $queryBuilder
             ->select('IDENTITY(pm.post) AS postId', 'a')
             ->from(PostMeta::class, 'pm')
-            ->innerJoin(Attachment::class, 'a', 'WITH', 'a.id = pm.value')
+            ->innerJoin(Post::class, 'a', 'WITH', 'a.id = pm.value')
             ->where('pm.key = :thumbnailKey')
             ->andWhere($queryBuilder->expr()->in('IDENTITY(pm.post)', ':postIds'))
             ->andWhere('a.type = :attachmentType')
             ->setParameter('thumbnailKey', '_thumbnail_id')
             ->setParameter('postIds', $postIds)
-            ->setParameter('attachmentType', 'attachment')
+            ->setParameter('attachmentType', Post::TYPE_ATTACHMENT)
             ->getQuery()
             ->getResult();
 
@@ -129,7 +128,7 @@ class AttachmentRepository extends ServiceEntityRepository
             return $criteria;
         }
 
-        $criteria['type'] = 'attachment';
+        $criteria['type'] = Post::TYPE_ATTACHMENT;
 
         return $criteria;
     }
