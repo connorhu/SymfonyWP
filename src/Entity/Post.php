@@ -305,6 +305,18 @@ class Post
         return null;
     }
 
+    public function getFeaturedImageId(): ?int
+    {
+        $thumbnailMeta = $this->getFirstPostMetaWithKey('_thumbnail_id');
+        $thumbnailId = $thumbnailMeta?->getValue();
+
+        if ($thumbnailId === null || !is_numeric($thumbnailId)) {
+            return null;
+        }
+
+        return (int) $thumbnailId;
+    }
+
     /**
      * @param string $key
      * @return array<int, PostMeta>

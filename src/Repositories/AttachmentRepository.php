@@ -4,6 +4,7 @@ namespace SymfonyWP\Repositories;
 
 use SymfonyWP\Entity\Attachment;
 use SymfonyWP\Entity\Post;
+use SymfonyWP\Entity\PostMeta;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -64,6 +65,58 @@ class AttachmentRepository extends ServiceEntityRepository
     public function findAllByPost(Post $post): array
     {
         return $this->findBy(['parent' => $post]);
+    }
+
+
+    public function findFeaturedImageForPost(Post $post): ?Attachment
+    {
+        $featuredImageId = $post->getFeaturedImageId();
+
+        if ($featuredImageId === null) {
+            return null;
+        }
+
+        return $this->find($featuredImageId);
+    }
+
+    /**
+     * Resolves featured images for the provided posts with a single query to avoid
+     * N+1 lookups in listing views.
+     *
+     * @param array<int, Post> $posts
+     * @return array<int, Attachment>
+     */
+    public function findFeaturedImagesForPosts(array $posts): array
+    {
+        $postIds = array_values(array_filter(array_map(static function (Post $post): ?int {
+            return $post->getId();
+        }, $posts)));
+
+        if ($postIds === []) {
+            return [];
+        }
+
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+        $rows = $queryBuilder
+            ->select('IDENTITY(pm.post) AS postId', 'a')
+            ->from(PostMeta::class, 'pm')
+            ->innerJoin(Attachment::class, 'a', 'WITH', 'a.id = pm.value')
+            ->where('pm.key = :thumbnailKey')
+            ->andWhere($queryBuilder->expr()->in('IDENTITY(pm.post)', ':postIds'))
+            ->andWhere('a.type = :attachmentType')
+            ->setParameter('thumbnailKey', '_thumbnail_id')
+            ->setParameter('postIds', $postIds)
+            ->setParameter('attachmentType', 'attachment')
+            ->getQuery()
+            ->getResult();
+
+        $featuredImagesByPostId = [];
+        foreach ($rows as $row) {
+            $featuredImagesByPostId[(int) $row['postId']] = $row[0];
+        }
+
+        return $featuredImagesByPostId;
     }
 
     /**
