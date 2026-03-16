@@ -1,8 +1,8 @@
 <?php
 
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use SymfonyWP\MultisiteNamingStrategy;
 use SymfonyWP\MultisiteProvider;
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -12,6 +12,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->autoconfigure();
 
     $services->load('SymfonyWP\\Repositories\\', __DIR__ . '/../../../Repositories/*')
+        ->tag('doctrine.repository_service')
         ->public();
 
     $services->load('SymfonyWP\\Entity\\', __DIR__ . '/../../../Entity/*')

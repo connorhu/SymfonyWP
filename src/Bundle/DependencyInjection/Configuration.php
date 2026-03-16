@@ -21,6 +21,12 @@ class Configuration implements ConfigurationInterface
                     ->isRequired()
                     ->cannotBeEmpty()
                 ->end()
+                ->scalarNode('connection')
+                    ->defaultNull()
+                ->end()
+                ->scalarNode('entity_manager')
+                    ->defaultNull()
+                ->end()
             ->end();
 
         return $treeBuilder;
