@@ -1,6 +1,7 @@
 <?php
 
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use SymfonyWP\AttachmentPathResolver;
 use SymfonyWP\MultisiteNamingStrategy;
 use SymfonyWP\MultisiteProvider;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -19,6 +20,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public();
 
     $services->set(MultisiteProvider::class)
+        ->public();
+
+    $services->set(AttachmentPathResolver::class)
+        ->args(['%symfony_wp.wp_installation_path%'])
         ->public();
 
     $services->set(MultisiteNamingStrategy::class)
