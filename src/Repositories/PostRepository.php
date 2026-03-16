@@ -36,7 +36,7 @@ class PostRepository extends ServiceEntityRepository
     public function findAttachmentWithPost(Post $post): array
     {
         return $this->findBy([
-            'type' => 'attachment',
+            'type' => Post::TYPE_ATTACHMENT,
             'parent' => $post
         ]);
     }
